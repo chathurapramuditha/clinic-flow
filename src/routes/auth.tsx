@@ -29,7 +29,7 @@ function AuthPage() {
   const [signinError, setSigninError] = useState<string | null>(null);
 
   const [signupName, setSignupName] = useState("");
-  const [signupPhone, setSignupPhone] = useState("");
+  
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupBusy, setSignupBusy] = useState(false);
@@ -65,7 +65,6 @@ function AuthPage() {
     setSignupBusy(true);
     const { error } = await signUp(signupEmail.trim(), signupPassword, {
       name: signupName.trim(),
-      phone: signupPhone.trim(),
     });
     setSignupBusy(false);
     if (error) {
@@ -170,16 +169,6 @@ function AuthPage() {
                     value={signupName}
                     onChange={(e) => setSignupName(e.target.value)}
                     placeholder="Jane Doe"
-                    required
-                  />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="su-phone">Phone</Label>
-                  <Input
-                    id="su-phone"
-                    value={signupPhone}
-                    onChange={(e) => setSignupPhone(e.target.value)}
-                    placeholder="+1 555-0100"
                     required
                   />
                 </div>
