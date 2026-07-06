@@ -23,16 +23,18 @@ export function CancelDialog({
   const appt = appointments.find((a) => a.id === appointmentId);
   const slot = appt ? SLOTS.find((s) => s.key === appt.slotKey) : null;
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!appointmentId) return;
-    const removed = cancelAppointment(appointmentId);
+    const removed = await cancelAppointment(appointmentId);
     onClose();
     if (removed) {
       toast("Appointment cancelled", {
         description: `${removed.patientName} · ${slot?.rangeLabel ?? ""}`,
         action: {
           label: "Undo",
-          onClick: () => restoreAppointment(removed),
+          onClick: () => {
+            void restoreAppointment(removed);
+          },
         },
       });
     }
