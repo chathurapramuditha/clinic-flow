@@ -23,7 +23,7 @@ type AuthContextValue = {
   signUp: (
     email: string,
     password: string,
-    meta: { name: string; phone: string },
+    meta: { name: string },
   ) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   refreshRoles: () => Promise<void>;
