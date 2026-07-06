@@ -174,16 +174,6 @@ function AuthPage() {
                   />
                 </div>
                 <div className="grid gap-1.5">
-                  <Label htmlFor="su-phone">Phone</Label>
-                  <Input
-                    id="su-phone"
-                    value={signupPhone}
-                    onChange={(e) => setSignupPhone(e.target.value)}
-                    placeholder="+1 555-0100"
-                    required
-                  />
-                </div>
-                <div className="grid gap-1.5">
                   <Label htmlFor="su-email">Email</Label>
                   <Input
                     id="su-email"
