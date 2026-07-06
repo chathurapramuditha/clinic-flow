@@ -1,4 +1,4 @@
-// Data models. Shaped to map cleanly to future Supabase tables.
+// Data models mirroring the Supabase schema, mapped into camelCase for the UI.
 
 export type TherapistStatus = "permanent" | "non-permanent";
 
@@ -13,16 +13,25 @@ export type WorkingHours = {
 
 export type Therapist = {
   id: string;
+  userId: string | null;
   name: string;
   status: TherapistStatus;
   specialty: string;
   initials: string;
-  color: string; // tailwind class token, e.g. "teal"
+  color: string;
   workingHours: WorkingHours;
+};
+
+export type Patient = {
+  id: string;
+  userId: string | null;
+  name: string;
+  phone: string;
 };
 
 export type Appointment = {
   id: string;
+  patientId: string;
   patientName: string;
   patientPhone: string;
   reason: string;
@@ -34,9 +43,4 @@ export type Appointment = {
   createdAt: string;
 };
 
-export type Patient = {
-  id: string;
-  name: string;
-  phone: string;
-  appointmentCount: number;
-};
+export type AppRole = "admin" | "therapist" | "patient";
