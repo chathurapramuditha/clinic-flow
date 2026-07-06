@@ -17,10 +17,10 @@ export type Database = {
       appointments: {
         Row: {
           created_at: string
+          created_by: string | null
           date: string
           id: string
-          patient_name: string
-          patient_phone: string
+          patient_id: string
           reason: string
           slot_key: string
           therapist_id: string
@@ -28,10 +28,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           date: string
           id?: string
-          patient_name: string
-          patient_phone?: string
+          patient_id: string
           reason?: string
           slot_key: string
           therapist_id: string
@@ -39,14 +39,128 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           date?: string
           id?: string
-          patient_name?: string
-          patient_phone?: string
+          patient_id?: string
           reason?: string
           slot_key?: string
           therapist_id?: string
           updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_therapist_id_fkey"
+            columns: ["therapist_id"]
+            isOneToOne: false
+            referencedRelation: "therapists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          phone: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      therapists: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          initials: string
+          name: string
+          sort_order: number
+          specialty: string
+          status: string
+          updated_at: string
+          user_id: string | null
+          work_days: number[]
+          work_end: number
+          work_start: number
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          initials?: string
+          name: string
+          sort_order?: number
+          specialty?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          work_days?: number[]
+          work_end?: number
+          work_start?: number
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          initials?: string
+          name?: string
+          sort_order?: number
+          specialty?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          work_days?: number[]
+          work_end?: number
+          work_start?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -55,10 +169,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "therapist" | "patient"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -185,6 +305,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "therapist", "patient"],
+    },
   },
 } as const

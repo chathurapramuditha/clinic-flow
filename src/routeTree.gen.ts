@@ -9,104 +9,153 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TherapistsRouteImport } from './routes/therapists'
-import { Route as PatientsRouteImport } from './routes/patients'
-import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedTherapistsRouteImport } from './routes/_authenticated/therapists'
+import { Route as AuthenticatedPatientsRouteImport } from './routes/_authenticated/patients'
+import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 
-const TherapistsRoute = TherapistsRouteImport.update({
-  id: '/therapists',
-  path: '/therapists',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PatientsRoute = PatientsRouteImport.update({
-  id: '/patients',
-  path: '/patients',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CalendarRoute = CalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTherapistsRoute = AuthenticatedTherapistsRouteImport.update({
+  id: '/therapists',
+  path: '/therapists',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPatientsRoute = AuthenticatedPatientsRouteImport.update({
+  id: '/patients',
+  path: '/patients',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/calendar': typeof CalendarRoute
-  '/patients': typeof PatientsRoute
-  '/therapists': typeof TherapistsRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
+  '/patients': typeof AuthenticatedPatientsRoute
+  '/therapists': typeof AuthenticatedTherapistsRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/calendar': typeof CalendarRoute
-  '/patients': typeof PatientsRoute
-  '/therapists': typeof TherapistsRoute
+  '/auth': typeof AuthRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
+  '/patients': typeof AuthenticatedPatientsRoute
+  '/therapists': typeof AuthenticatedTherapistsRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/calendar': typeof CalendarRoute
-  '/patients': typeof PatientsRoute
-  '/therapists': typeof TherapistsRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
+  '/_authenticated/patients': typeof AuthenticatedPatientsRoute
+  '/_authenticated/therapists': typeof AuthenticatedTherapistsRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendar' | '/patients' | '/therapists'
+  fullPaths: '/' | '/auth' | '/calendar' | '/patients' | '/therapists'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendar' | '/patients' | '/therapists'
-  id: '__root__' | '/' | '/calendar' | '/patients' | '/therapists'
+  to: '/auth' | '/calendar' | '/patients' | '/therapists' | '/'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/calendar'
+    | '/_authenticated/patients'
+    | '/_authenticated/therapists'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  CalendarRoute: typeof CalendarRoute
-  PatientsRoute: typeof PatientsRoute
-  TherapistsRoute: typeof TherapistsRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/therapists': {
-      id: '/therapists'
-      path: '/therapists'
-      fullPath: '/therapists'
-      preLoaderRoute: typeof TherapistsRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/patients': {
-      id: '/patients'
-      path: '/patients'
-      fullPath: '/patients'
-      preLoaderRoute: typeof PatientsRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/calendar': {
-      id: '/calendar'
-      path: '/calendar'
-      fullPath: '/calendar'
-      preLoaderRoute: typeof CalendarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/therapists': {
+      id: '/_authenticated/therapists'
+      path: '/therapists'
+      fullPath: '/therapists'
+      preLoaderRoute: typeof AuthenticatedTherapistsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/patients': {
+      id: '/_authenticated/patients'
+      path: '/patients'
+      fullPath: '/patients'
+      preLoaderRoute: typeof AuthenticatedPatientsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/calendar': {
+      id: '/_authenticated/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AuthenticatedCalendarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
+  AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRoute
+  AuthenticatedTherapistsRoute: typeof AuthenticatedTherapistsRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
+  AuthenticatedPatientsRoute: AuthenticatedPatientsRoute,
+  AuthenticatedTherapistsRoute: AuthenticatedTherapistsRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  CalendarRoute: CalendarRoute,
-  PatientsRoute: PatientsRoute,
-  TherapistsRoute: TherapistsRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

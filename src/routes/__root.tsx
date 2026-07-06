@@ -3,6 +3,7 @@ import {
   Outlet,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -13,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ClinicProvider } from "@/store/clinic-store";
+import { AuthProvider } from "@/context/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -111,28 +113,43 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ClinicProvider>
-        <SidebarProvider>
-          <div className="flex min-h-screen w-full bg-background">
-            <AppSidebar />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur">
-                <SidebarTrigger />
-                <div className="text-sm font-semibold tracking-tight text-foreground">
-                  PhysioSchedule
-                </div>
-                <span className="ml-1 text-xs text-muted-foreground hidden sm:inline">
-                  · Physiotherapy Department
-                </span>
-              </header>
-              <main className="flex-1 min-w-0">
-                <Outlet />
-              </main>
-            </div>
-          </div>
+      <AuthProvider>
+        <ClinicProvider>
+          <AppShell />
           <Toaster position="bottom-right" richColors />
-        </SidebarProvider>
-      </ClinicProvider>
+        </ClinicProvider>
+      </AuthProvider>
     </QueryClientProvider>
+  );
+}
+
+function AppShell() {
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+  const isAuthPage = pathname === "/auth";
+
+  if (isAuthPage) {
+    return <Outlet />;
+  }
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur">
+            <SidebarTrigger />
+            <div className="text-sm font-semibold tracking-tight text-foreground">
+              PhysioSchedule
+            </div>
+            <span className="ml-1 text-xs text-muted-foreground hidden sm:inline">
+              · Physiotherapy Department
+            </span>
+          </header>
+          <main className="flex-1 min-w-0">
+            <Outlet />
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }

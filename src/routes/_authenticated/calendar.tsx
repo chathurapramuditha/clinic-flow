@@ -15,20 +15,25 @@ import { CalendarGrid } from "@/components/calendar-grid";
 import { BookingModal, type BookingModalState } from "@/components/booking-modal";
 import { AppointmentDrawer } from "@/components/appointment-drawer";
 import { CancelDialog } from "@/components/cancel-dialog";
-import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, WifiOff, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export const Route = createFileRoute("/calendar")({
+export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({
     meta: [
       { title: "Calendar — PhysioSchedule" },
-      { name: "description", content: "Daily 45-minute appointment grid across all therapists." },
+      {
+        name: "description",
+        content: "Daily 45-minute appointment grid across all therapists.",
+      },
     ],
   }),
   component: CalendarPage,
 });
 
 function CalendarPage() {
-  const { therapists, appointments } = useClinic();
+  const { therapists, appointments, loading, connectionStatus, reconnect } = useClinic();
   const [date, setDate] = useState<string>(todayISO());
   const [therapistFilter, setTherapistFilter] = useState<string>("all");
   const [booking, setBooking] = useState<BookingModalState>({ open: false, mode: "create" });
@@ -42,7 +47,8 @@ function CalendarPage() {
       initial: {
         date,
         slotKey: opts.slotKey,
-        therapistId: opts.therapistId ?? (therapistFilter !== "all" ? therapistFilter : undefined),
+        therapistId:
+          opts.therapistId ?? (therapistFilter !== "all" ? therapistFilter : undefined),
       },
     });
 
@@ -69,6 +75,24 @@ function CalendarPage() {
           <CalendarPlus className="mr-2 h-4 w-4" /> New appointment
         </Button>
       </div>
+
+      {connectionStatus === "error" && (
+        <Alert className="mt-4 border-amber-300 bg-amber-50 text-amber-900">
+          <WifiOff className="h-4 w-4" />
+          <AlertTitle>Live updates disconnected</AlertTitle>
+          <AlertDescription className="flex items-center justify-between gap-4">
+            <span>Attempting to reconnect. Your calendar may be slightly out of date.</span>
+            <Button size="sm" variant="outline" onClick={reconnect}>
+              Retry now
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+      {connectionStatus === "connecting" && !loading && (
+        <div className="mt-4 flex items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Connecting to live updates…
+        </div>
+      )}
 
       <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border bg-card p-2 shadow-sm">
         <div className="flex items-center gap-1">
@@ -112,12 +136,23 @@ function CalendarPage() {
       </div>
 
       <div className="mt-4">
-        <CalendarGrid
-          date={date}
-          filterTherapistId={therapistFilter as "all" | string}
-          onCreate={openBookingCreate}
-          onOpen={setOpenId}
-        />
+        {loading ? (
+          <div className="rounded-2xl border bg-card p-4 shadow-sm">
+            <Skeleton className="h-8 w-full" />
+            <div className="mt-2 space-y-1">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-14 w-full" />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <CalendarGrid
+            date={date}
+            filterTherapistId={therapistFilter as "all" | string}
+            onCreate={openBookingCreate}
+            onOpen={setOpenId}
+          />
+        )}
       </div>
 
       <BookingModal

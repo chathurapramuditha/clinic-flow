@@ -6,15 +6,10 @@ export const CLINIC_END_MIN = 21 * 60 + 30; // 1290
 export const SLOT_MINUTES = 45;
 
 export type Slot = {
-  /** Minutes from midnight, start of slot. */
   start: number;
-  /** Minutes from midnight, end of slot. */
   end: number;
-  /** "HH:MM" 24h key, stable id. */
   key: string;
-  /** e.g. "8:30 AM" */
   label: string;
-  /** e.g. "8:30 AM - 9:15 AM" */
   rangeLabel: string;
 };
 
@@ -55,8 +50,7 @@ export function generateSlots(): Slot[] {
 export const SLOTS: Slot[] = generateSlots();
 
 export function todayISO(): string {
-  const d = new Date();
-  return isoDate(d);
+  return isoDate(new Date());
 }
 
 export function isoDate(d: Date): string {
@@ -72,27 +66,26 @@ export function addDays(iso: string, days: number): string {
   return isoDate(d);
 }
 
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** Locale-stable to avoid SSR/CSR hydration mismatches. */
 export function prettyDate(iso: string): string {
   const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString(undefined, {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
 export function shortDay(iso: string): { weekday: string; day: string } {
   const d = new Date(iso + "T00:00:00");
   return {
-    weekday: d.toLocaleDateString(undefined, { weekday: "short" }),
+    weekday: WEEKDAYS[d.getDay()].slice(0, 3),
     day: d.getDate().toString(),
   };
 }
 
 export function getWeekDates(anchorIso: string): string[] {
   const d = new Date(anchorIso + "T00:00:00");
-  const day = d.getDay(); // 0 Sun ... 6 Sat
+  const day = d.getDay();
   const monday = new Date(d);
   monday.setDate(d.getDate() - ((day + 6) % 7));
   return Array.from({ length: 7 }, (_, i) => {

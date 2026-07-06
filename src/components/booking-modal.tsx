@@ -19,7 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useClinic } from "@/store/clinic-store";
-import { SLOTS, todayISO, keyToMinutes } from "@/lib/schedule";
+import { useAuth } from "@/context/auth-context";
+import { SLOTS, todayISO } from "@/lib/schedule";
 import type { Appointment } from "@/lib/types";
 import { StatusPill } from "./therapist-badge";
 import { SLOT_MINUTES } from "@/lib/schedule";
@@ -34,6 +35,8 @@ export type BookingModalState = {
   appointmentId?: string;
 };
 
+const NEW_PATIENT = "__new__";
+
 export function BookingModal({
   state,
   onOpenChange,
@@ -41,8 +44,22 @@ export function BookingModal({
   state: BookingModalState;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { therapists, addAppointment, updateAppointment, validateBooking } = useClinic();
+  const {
+    therapists,
+    patients,
+    addAppointment,
+    updateAppointment,
+    validateBooking,
+  } = useClinic();
+  const { isPatient, isAdmin, isTherapist, user } = useAuth();
 
+  const myPatient = useMemo(
+    () => patients.find((p) => p.userId === user?.id),
+    [patients, user?.id],
+  );
+  const canPickPatient = isAdmin || isTherapist;
+
+  const [patientMode, setPatientMode] = useState<string>("existing"); // patient id or NEW_PATIENT
   const [patientName, setPatientName] = useState("");
   const [patientPhone, setPatientPhone] = useState("");
   const [reason, setReason] = useState("");
@@ -50,18 +67,29 @@ export function BookingModal({
   const [date, setDate] = useState<string>(todayISO());
   const [slotKey, setSlotKey] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (state.open) {
-      setPatientName(state.initial?.patientName ?? "");
-      setPatientPhone(state.initial?.patientPhone ?? "");
-      setReason(state.initial?.reason ?? "");
-      setTherapistId(state.initial?.therapistId ?? "");
-      setDate(state.initial?.date ?? todayISO());
-      setSlotKey(state.initial?.slotKey ?? "");
-      setErrors({});
+    if (!state.open) return;
+    setReason(state.initial?.reason ?? "");
+    setTherapistId(state.initial?.therapistId ?? "");
+    setDate(state.initial?.date ?? todayISO());
+    setSlotKey(state.initial?.slotKey ?? "");
+    setErrors({});
+    if (state.mode === "edit" && state.initial?.patientId) {
+      setPatientMode(state.initial.patientId);
+      setPatientName(state.initial.patientName ?? "");
+      setPatientPhone(state.initial.patientPhone ?? "");
+    } else if (!canPickPatient && myPatient) {
+      setPatientMode(myPatient.id);
+      setPatientName(myPatient.name);
+      setPatientPhone(myPatient.phone);
+    } else {
+      setPatientMode(patients[0]?.id ?? NEW_PATIENT);
+      setPatientName("");
+      setPatientPhone("");
     }
-  }, [state.open, state.initial]);
+  }, [state.open, state.initial, state.mode, canPickPatient, myPatient, patients]);
 
   const dow = useMemo(() => new Date(date + "T00:00:00").getDay(), [date]);
 
@@ -71,18 +99,25 @@ export function BookingModal({
     if (!t.workingHours.days.includes(dow)) return [];
     return SLOTS.filter(
       (s) =>
-        s.start >= t.workingHours.start &&
-        s.start + SLOT_MINUTES <= t.workingHours.end,
+        s.start >= t.workingHours.start && s.start + SLOT_MINUTES <= t.workingHours.end,
     );
   }, [therapists, therapistId, dow]);
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!patientName.trim()) e.patientName = "Patient name is required.";
-    else if (patientName.trim().length < 2) e.patientName = "Name must be at least 2 characters.";
-    if (!patientPhone.trim()) e.patientPhone = "Phone number is required.";
-    else if (!/^[+\d][\d\s\-()]{5,}$/.test(patientPhone.trim()))
-      e.patientPhone = "Enter a valid phone number.";
+    if (canPickPatient) {
+      if (!patientMode) e.patient = "Select a patient.";
+      if (patientMode === NEW_PATIENT) {
+        if (!patientName.trim()) e.patientName = "Patient name is required.";
+        else if (patientName.trim().length < 2)
+          e.patientName = "Name must be at least 2 characters.";
+        if (!patientPhone.trim()) e.patientPhone = "Phone number is required.";
+        else if (!/^[+\d][\d\s\-()]{5,}$/.test(patientPhone.trim()))
+          e.patientPhone = "Enter a valid phone number.";
+      }
+    } else if (!myPatient) {
+      e.patient = "Your patient profile is not ready yet.";
+    }
     if (!reason.trim()) e.reason = "Please provide a reason for the visit.";
     if (!therapistId) e.therapistId = "Select a therapist.";
     if (!date) e.date = "Select a date.";
@@ -101,24 +136,41 @@ export function BookingModal({
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
-    const payload = {
-      patientName: patientName.trim(),
-      patientPhone: patientPhone.trim(),
-      reason: reason.trim(),
-      therapistId,
-      date,
-      slotKey,
-    };
-    if (state.mode === "edit" && state.appointmentId) {
-      updateAppointment(state.appointmentId, payload);
-      toast.success("Appointment updated");
-    } else {
-      addAppointment(payload);
-      toast.success("Appointment booked");
+    setBusy(true);
+    try {
+      if (state.mode === "edit" && state.appointmentId) {
+        await updateAppointment(state.appointmentId, {
+          therapistId,
+          date,
+          slotKey,
+          reason: reason.trim(),
+        });
+        toast.success("Appointment updated");
+      } else {
+        let patientId: string | undefined;
+        if (canPickPatient) {
+          if (patientMode !== NEW_PATIENT) patientId = patientMode;
+        } else {
+          patientId = myPatient?.id;
+        }
+        const res = await addAppointment({
+          patientId,
+          patientName: patientName.trim(),
+          patientPhone: patientPhone.trim(),
+          reason: reason.trim(),
+          therapistId,
+          date,
+          slotKey,
+        });
+        if (!res) return;
+        toast.success("Appointment booked");
+      }
+      onOpenChange(false);
+    } finally {
+      setBusy(false);
     }
-    onOpenChange(false);
   };
 
   const selectedTherapist = therapists.find((t) => t.id === therapistId);
@@ -136,33 +188,82 @@ export function BookingModal({
         </DialogHeader>
 
         <div className="grid gap-4">
-          <div className="grid gap-1.5">
-            <Label htmlFor="patientName">Patient name</Label>
-            <Input
-              id="patientName"
-              value={patientName}
-              onChange={(e) => setPatientName(e.target.value)}
-              placeholder="Jane Doe"
-              aria-invalid={!!errors.patientName}
-            />
-            {errors.patientName && (
-              <p className="text-xs text-destructive">{errors.patientName}</p>
-            )}
-          </div>
+          {canPickPatient ? (
+            <div className="grid gap-1.5">
+              <Label>Patient</Label>
+              <Select
+                value={patientMode}
+                onValueChange={(v) => {
+                  setPatientMode(v);
+                  if (v !== NEW_PATIENT) {
+                    const p = patients.find((x) => x.id === v);
+                    setPatientName(p?.name ?? "");
+                    setPatientPhone(p?.phone ?? "");
+                  } else {
+                    setPatientName("");
+                    setPatientPhone("");
+                  }
+                }}
+                disabled={state.mode === "edit"}
+              >
+                <SelectTrigger aria-invalid={!!errors.patient}>
+                  <SelectValue placeholder="Select or add a patient" />
+                </SelectTrigger>
+                <SelectContent>
+                  {patients.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                      {p.phone ? ` · ${p.phone}` : ""}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value={NEW_PATIENT}>+ Add new patient</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.patient && <p className="text-xs text-destructive">{errors.patient}</p>}
+            </div>
+          ) : (
+            <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                Booking as
+              </p>
+              <p className="mt-0.5 font-medium">{myPatient?.name ?? "You"}</p>
+              {myPatient?.phone && (
+                <p className="text-xs text-muted-foreground">{myPatient.phone}</p>
+              )}
+              {errors.patient && <p className="mt-1 text-xs text-destructive">{errors.patient}</p>}
+            </div>
+          )}
 
-          <div className="grid gap-1.5">
-            <Label htmlFor="patientPhone">Phone number</Label>
-            <Input
-              id="patientPhone"
-              value={patientPhone}
-              onChange={(e) => setPatientPhone(e.target.value)}
-              placeholder="+1 555-0100"
-              aria-invalid={!!errors.patientPhone}
-            />
-            {errors.patientPhone && (
-              <p className="text-xs text-destructive">{errors.patientPhone}</p>
-            )}
-          </div>
+          {canPickPatient && patientMode === NEW_PATIENT && (
+            <div className="grid gap-3 rounded-lg border border-dashed p-3">
+              <div className="grid gap-1.5">
+                <Label htmlFor="patientName">Patient name</Label>
+                <Input
+                  id="patientName"
+                  value={patientName}
+                  onChange={(e) => setPatientName(e.target.value)}
+                  placeholder="Jane Doe"
+                  aria-invalid={!!errors.patientName}
+                />
+                {errors.patientName && (
+                  <p className="text-xs text-destructive">{errors.patientName}</p>
+                )}
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="patientPhone">Phone number</Label>
+                <Input
+                  id="patientPhone"
+                  value={patientPhone}
+                  onChange={(e) => setPatientPhone(e.target.value)}
+                  placeholder="+1 555-0100"
+                  aria-invalid={!!errors.patientPhone}
+                />
+                {errors.patientPhone && (
+                  <p className="text-xs text-destructive">{errors.patientPhone}</p>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="grid gap-1.5">
             <Label htmlFor="reason">Reason for visit</Label>
@@ -248,14 +349,15 @@ export function BookingModal({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
+            disabled={busy}
             className="bg-gradient-to-r from-teal-500 to-sky-500 text-white hover:opacity-95"
           >
-            {state.mode === "edit" ? "Save changes" : "Book appointment"}
+            {busy ? "Saving…" : state.mode === "edit" ? "Save changes" : "Book appointment"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -263,11 +365,7 @@ export function BookingModal({
   );
 }
 
-function formatWorkingHours(wh: {
-  start: number;
-  end: number;
-  days: number[];
-}) {
+function formatWorkingHours(wh: { start: number; end: number; days: number[] }) {
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const days = wh.days.map((d) => dayNames[d]).join(", ");
   const fmt = (m: number) => {
@@ -279,6 +377,3 @@ function formatWorkingHours(wh: {
   };
   return `${days} · ${fmt(wh.start)} – ${fmt(wh.end)}`;
 }
-
-// silence unused import warning if tree-shaken
-void keyToMinutes;
