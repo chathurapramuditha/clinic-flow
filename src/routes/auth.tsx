@@ -65,7 +65,6 @@ function AuthPage() {
     setSignupBusy(true);
     const { error } = await signUp(signupEmail.trim(), signupPassword, {
       name: signupName.trim(),
-      phone: signupPhone.trim(),
     });
     setSignupBusy(false);
     if (error) {
