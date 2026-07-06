@@ -163,7 +163,14 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
 
   const updateAppointment: ClinicContextValue["updateAppointment"] = useCallback(
     async (id, patch) => {
-      const payload: Record<string, unknown> = {};
+      const payload: {
+        patient_name?: string;
+        patient_phone?: string;
+        reason?: string;
+        therapist_id?: string;
+        date?: string;
+        slot_key?: string;
+      } = {};
       if (patch.patientName !== undefined) payload.patient_name = patch.patientName;
       if (patch.patientPhone !== undefined) payload.patient_phone = patch.patientPhone;
       if (patch.reason !== undefined) payload.reason = patch.reason;
