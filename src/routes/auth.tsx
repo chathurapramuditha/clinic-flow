@@ -29,7 +29,7 @@ function AuthPage() {
   const [signinError, setSigninError] = useState<string | null>(null);
 
   const [signupName, setSignupName] = useState("");
-  const [signupPhone, setSignupPhone] = useState("");
+  
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupBusy, setSignupBusy] = useState(false);
