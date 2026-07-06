@@ -168,7 +168,6 @@ function AuthPage() {
                     id="su-name"
                     value={signupName}
                     onChange={(e) => setSignupName(e.target.value)}
-                    placeholder="Jane Doe"
                     required
                   />
                 </div>
