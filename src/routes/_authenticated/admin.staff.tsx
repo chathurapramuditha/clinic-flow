@@ -28,6 +28,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Trash2, UserPlus, Pencil } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { AppRole } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/admin/staff")({
@@ -56,17 +64,29 @@ function AdminStaffPage() {
   const [editTarget, setEditTarget] = useState<StaffRow | null>(null);
   const [editName, setEditName] = useState("");
   const [editEmp, setEditEmp] = useState("");
+  const [editIsAdmin, setEditIsAdmin] = useState(false);
+  const [editIsTherapist, setEditIsTherapist] = useState(false);
+  const [editStatus, setEditStatus] = useState("permanent");
   const [editBusy, setEditBusy] = useState(false);
+  const [statusByUser, setStatusByUser] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.rpc("admin_list_staff");
+    const [{ data, error }, { data: tData }] = await Promise.all([
+      supabase.rpc("admin_list_staff"),
+      supabase.from("therapists").select("user_id,status"),
+    ]);
     if (error) {
       toast.error(error.message);
       setRows([]);
     } else {
       setRows((data ?? []) as StaffRow[]);
     }
+    const map: Record<string, string> = {};
+    for (const t of tData ?? []) {
+      if (t.user_id) map[t.user_id] = t.status;
+    }
+    setStatusByUser(map);
     setLoading(false);
   }, []);
 
@@ -102,16 +122,26 @@ function AdminStaffPage() {
     setEditTarget(r);
     setEditName(r.name);
     setEditEmp(r.emp_number);
+    setEditIsAdmin(r.roles.includes("admin"));
+    setEditIsTherapist(r.roles.includes("therapist"));
+    setEditStatus(statusByUser[r.user_id] ?? "permanent");
   };
 
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editTarget) return;
+    if (!editIsAdmin && !editIsTherapist) {
+      toast.error("Select at least one role.");
+      return;
+    }
     setEditBusy(true);
     const { error } = await supabase.rpc("admin_update_staff", {
       _target_user_id: editTarget.user_id,
       _emp: editEmp.trim(),
       _name: editName.trim(),
+      _is_admin: editIsAdmin,
+      _is_therapist: editIsTherapist,
+      _status: editStatus,
     });
     setEditBusy(false);
     if (error) {
@@ -257,6 +287,11 @@ function AdminStaffPage() {
                       </Badge>
                     ))
                   )}
+                  {statusByUser[r.user_id] && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {statusByUser[r.user_id] === "permanent" ? "Permanent" : "Part-time"}
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex justify-end gap-1.5">
                   <Button
@@ -313,6 +348,44 @@ function AdminStaffPage() {
                 required
               />
             </div>
+            <div className="grid gap-1.5">
+              <Label>Roles</Label>
+              <div className="flex items-center gap-6 pt-1">
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={editIsAdmin}
+                    onCheckedChange={(v) => setEditIsAdmin(v === true)}
+                    data-testid="edit-staff-admin-checkbox"
+                  />
+                  Admin
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={editIsTherapist}
+                    onCheckedChange={(v) => setEditIsTherapist(v === true)}
+                    data-testid="edit-staff-therapist-checkbox"
+                  />
+                  Therapist
+                </label>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                A staff member can be both admin and therapist.
+              </p>
+            </div>
+            {editIsTherapist && (
+              <div className="grid gap-1.5">
+                <Label>Staff type</Label>
+                <Select value={editStatus} onValueChange={setEditStatus}>
+                  <SelectTrigger data-testid="edit-staff-status-select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="permanent">Permanent</SelectItem>
+                    <SelectItem value="non-permanent">Part-time</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <DialogFooter className="mt-2">
               <Button type="button" variant="outline" onClick={() => setEditTarget(null)}>
                 Cancel
