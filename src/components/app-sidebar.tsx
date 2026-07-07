@@ -35,7 +35,7 @@ const items = [
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { user, roles, signOut } = useAuth();
+  const { user, roles, signOut, empNumber } = useAuth();
   const navigate = useNavigate();
   const isAdmin = roles.includes("admin");
 
@@ -86,10 +86,10 @@ export function AppSidebar() {
               ))}
               {isAdmin && (
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={pathname === "/admin/users"}>
-                    <Link to="/admin/users" className="flex items-center gap-2">
+                  <SidebarMenuButton asChild isActive={pathname === "/admin/staff"}>
+                    <Link to="/admin/staff" className="flex items-center gap-2">
                       <ShieldCheck className="h-4 w-4" />
-                      <span>Users</span>
+                      <span>Staff</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -105,7 +105,9 @@ export function AppSidebar() {
             <div className="rounded-lg border bg-muted/40 p-2">
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-medium">{user.email}</p>
+                  <p className="truncate text-xs font-medium">
+                    {empNumber ? `Emp ${empNumber}` : user.email}
+                  </p>
                   {primaryRole && (
                     <Badge variant="secondary" className="mt-1 text-[10px]">
                       {primaryRole}
