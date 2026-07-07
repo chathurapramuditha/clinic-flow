@@ -6,7 +6,8 @@ import {
   Users,
   Activity,
   LogOut,
-} from "lucide-react";
+  ShieldCheck,
+
 import {
   Sidebar,
   SidebarContent,
