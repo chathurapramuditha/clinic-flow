@@ -322,8 +322,8 @@ function AdminStaffPage() {
           <DialogHeader>
             <DialogTitle>Edit staff member</DialogTitle>
             <DialogDescription>
-              Update the name or employee number. They will sign in with the new
-              employee number afterwards.
+              Update the name, employee number, roles or staff type. They will
+              sign in with the new employee number afterwards.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleEdit} className="grid gap-3">

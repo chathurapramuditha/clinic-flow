@@ -25,11 +25,11 @@ Change the login method to use the employee number instead of the previous metho
 - [x] Repointed app to user's own Supabase project + generated consolidated setup.sql (schema, RLS, realtime, seeds with correct auth.users inserts, admin RPCs)
 - [x] Seeded admin 26754 + 8 staff, all logins verified via curl (9/9 LOGIN OK) and browser E2E (admin login → dashboard → staff page)
 - [x] Preview environment fixed (frontend shim, vite allowedHosts, deps installed)
+- [x] Edit staff feature: name, employee number, roles (admin/therapist, can be both), staff type (Permanent/Part-time). New RPC `admin_update_staff` (user ran /app/public/update_staff.sql). Safeguards: last-admin protection, duplicate emp rejection, blocks removing therapist role if appointments exist. Tested via API (5/5) + browser E2E.
 
 ## Backlog
-- P1: Edit staff details (name, employee number) from admin staff page — user requested edit capability
 - P1: Admin password reset for staff (needs a new `admin_set_password` RPC in Supabase — user must run SQL to add it)
-- P2: Role assignment UI (grant/revoke admin) — `admin_set_role` RPC already exists in DB
+- P2: Force password change on first login (all staff share default `Hemas@123`)
 - P2: Clean up old Lovable migrations referencing the dead project (informational only)
 
 ## Key gotchas for future agents
