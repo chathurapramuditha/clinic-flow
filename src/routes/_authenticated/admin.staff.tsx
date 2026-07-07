@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Trash2, UserPlus } from "lucide-react";
+import { Trash2, UserPlus, Pencil } from "lucide-react";
 import type { AppRole } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/admin/staff")({
@@ -53,6 +53,10 @@ function AdminStaffPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<StaffRow | null>(null);
+  const [editTarget, setEditTarget] = useState<StaffRow | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmp, setEditEmp] = useState("");
+  const [editBusy, setEditBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -91,6 +95,31 @@ function AdminStaffPage() {
     setEmp("");
     setName("");
     setPassword("");
+    void load();
+  };
+
+  const openEdit = (r: StaffRow) => {
+    setEditTarget(r);
+    setEditName(r.name);
+    setEditEmp(r.emp_number);
+  };
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTarget) return;
+    setEditBusy(true);
+    const { error } = await supabase.rpc("admin_update_staff", {
+      _target_user_id: editTarget.user_id,
+      _emp: editEmp.trim(),
+      _name: editName.trim(),
+    });
+    setEditBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`Updated ${editName.trim()} (${editEmp.trim()})`);
+    setEditTarget(null);
     void load();
   };
 
@@ -229,11 +258,20 @@ function AdminStaffPage() {
                     ))
                   )}
                 </div>
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    data-testid={`edit-staff-${r.emp_number}`}
+                    onClick={() => openEdit(r)}
+                  >
+                    <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit
+                  </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     disabled={isSelf}
+                    data-testid={`remove-staff-${r.emp_number}`}
                     onClick={() => setConfirmDelete(r)}
                   >
                     <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Remove
@@ -243,6 +281,49 @@ function AdminStaffPage() {
             );
           })}
       </div>
+
+      <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
+        <DialogContent data-testid="edit-staff-dialog">
+          <DialogHeader>
+            <DialogTitle>Edit staff member</DialogTitle>
+            <DialogDescription>
+              Update the name or employee number. They will sign in with the new
+              employee number afterwards.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEdit} className="grid gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-name">Full name</Label>
+              <Input
+                id="edit-name"
+                data-testid="edit-staff-name-input"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="edit-emp">Employee number</Label>
+              <Input
+                id="edit-emp"
+                data-testid="edit-staff-emp-input"
+                value={editEmp}
+                onChange={(e) => setEditEmp(e.target.value)}
+                autoCapitalize="characters"
+                required
+              />
+            </div>
+            <DialogFooter className="mt-2">
+              <Button type="button" variant="outline" onClick={() => setEditTarget(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={editBusy} data-testid="edit-staff-save-button">
+                {editBusy ? "Saving…" : "Save changes"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog
         open={!!confirmDelete}

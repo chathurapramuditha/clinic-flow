@@ -180,6 +180,10 @@ export type Database = {
         Args: { _target_user_id: string }
         Returns: undefined
       }
+      admin_update_staff: {
+        Args: { _target_user_id: string; _emp: string; _name: string }
+        Returns: undefined
+      }
       admin_list_staff: {
         Args: never
         Returns: {
