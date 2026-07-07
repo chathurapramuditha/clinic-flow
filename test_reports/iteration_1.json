@@ -1,0 +1,34 @@
+{
+  "summary": "Verified PhysioSchedule Calendar shows ALL 8 therapists for both admin (26754) and therapist (19352) users. Filter dropdown lists 'All therapists' + all 8 names; single-therapist filter narrows correctly; switching back to 'All therapists' restores all 8 columns. Dashboard shows 'ACTIVE THERAPISTS 8/8'.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "root/app-shell", "issues": ["Non-blocking React SSR hydration mismatch warning on __root__ (data-tsd-source line-number attr differs between server and client). Tree re-renders on client so functionality is unaffected, but the console error is noisy. Likely caused by Tailwind/TSD source-map plugin injecting different line numbers between SSR and client render."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(Optional) Investigate root-layout hydration mismatch (data-tsd-source attributes on <html>/<head>/<body> in __root.tsx around line 99-105). Consider disabling the tsd-source-attr plugin for the root layout or ensure it runs identically on server and client to remove the console error."
+  ],
+  "critical_code_review_comments": [
+    "Login flow requires ~5-8s wait for supabase auth + user_roles + therapists/appointments/patients fetches before redirect completes. Consider showing a loading spinner on the submit button while auth is in-flight (currently the form appears idle).",
+    "SSR hydration mismatch on RootShell is a real code smell even if visually harmless; will surface as a red console error for every user on every page load."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (no local backend by design)", "frontend": "100% (5/5 requested checks pass)"},
+  "test_credentials": "Admin 26754 / Hemas@123, Therapist 19352 / Hemas@123 (both work against remote Supabase).",
+  "seed_data_creation": "None. Read-only verification as instructed.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "App is Vite + TanStack Start + Supabase (no local FastAPI/Mongo). Login form at /auth uses #emp and #password, submit is button[type=submit]. Auth call goes to https://gqfiumavcxiuonwgjxyj.supabase.co/auth/v1/token?grant_type=password. After successful login the app redirects to '/'. Calendar at /calendar; the Radix Select trigger is [role=combobox]. Therapist column headers are plain text like 'Ms Madhuwanthi'. Wait ~5s after clicking submit and ~5s on /calendar for data to load. Root-layout hydration mismatch console error is present but non-blocking.",
+  "verified_checks": {
+    "admin_calendar_all_8_columns": true,
+    "filter_dropdown_lists_all_9_options": true,
+    "single_therapist_filter_shows_one_column": true,
+    "switch_back_to_all_shows_all_8": true,
+    "therapist_user_sees_all_8_columns": true,
+    "dashboard_active_therapists_8_of_8": true
+  }
+}
