@@ -68,6 +68,8 @@ function AdminStaffPage() {
   const [editIsTherapist, setEditIsTherapist] = useState(false);
   const [editStatus, setEditStatus] = useState("permanent");
   const [editBusy, setEditBusy] = useState(false);
+  const [editPassword, setEditPassword] = useState("");
+  const [resetBusy, setResetBusy] = useState(false);
   const [statusByUser, setStatusByUser] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
@@ -125,6 +127,23 @@ function AdminStaffPage() {
     setEditIsAdmin(r.roles.includes("admin"));
     setEditIsTherapist(r.roles.includes("therapist"));
     setEditStatus(statusByUser[r.user_id] ?? "permanent");
+    setEditPassword("");
+  };
+
+  const handleResetPassword = async () => {
+    if (!editTarget || editPassword.length < 6) return;
+    setResetBusy(true);
+    const { error } = await supabase.rpc("admin_set_password", {
+      _target_user_id: editTarget.user_id,
+      _password: editPassword,
+    });
+    setResetBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`Password reset for ${editTarget.name}. They are signed out everywhere.`);
+    setEditPassword("");
   };
 
   const handleEdit = async (e: React.FormEvent) => {
@@ -386,6 +405,31 @@ function AdminStaffPage() {
                 </Select>
               </div>
             )}
+            <div className="grid gap-1.5 rounded-lg border bg-muted/40 p-3">
+              <Label htmlFor="edit-password">Reset password</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="edit-password"
+                  data-testid="edit-staff-password-input"
+                  type="text"
+                  placeholder="New password (min 6 characters)"
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={resetBusy || editPassword.length < 6}
+                  onClick={handleResetPassword}
+                  data-testid="edit-staff-reset-password-button"
+                >
+                  {resetBusy ? "Resetting…" : "Reset"}
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Signs the member out of all devices. Share the new password with them.
+              </p>
+            </div>
             <DialogFooter className="mt-2">
               <Button type="button" variant="outline" onClick={() => setEditTarget(null)}>
                 Cancel
