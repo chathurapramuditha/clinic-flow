@@ -19,17 +19,24 @@ type AuthContextValue = {
   isAdmin: boolean;
   isTherapist: boolean;
   isPatient: boolean;
-  signIn: (email: string, password: string) => Promise<{ error?: string }>;
-  signUp: (
-    email: string,
-    password: string,
-    meta: { name: string },
-  ) => Promise<{ error?: string }>;
+  empNumber: string | null;
+  signIn: (empNumber: string, password: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   refreshRoles: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+function empToEmail(emp: string) {
+  return `${emp.trim().toLowerCase()}@staff.local`;
+}
+
+function emailToEmp(email: string | undefined | null): string | null {
+  if (!email) return null;
+  const [local, domain] = email.split("@");
+  if (domain !== "staff.local") return null;
+  return local.toUpperCase();
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -70,25 +77,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [loadRoles]);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error?.message };
+  const signIn = useCallback(async (empNumber: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: empToEmail(empNumber),
+      password,
+    });
+    if (error) {
+      const msg = /invalid/i.test(error.message)
+        ? "Invalid employee number or password."
+        : error.message;
+      return { error: msg };
+    }
+    return {};
   }, []);
-
-  const signUp = useCallback(
-    async (email: string, password: string, meta: { name: string }) => {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: meta,
-          emailRedirectTo: `${window.location.origin}/`,
-        },
-      });
-      return { error: error?.message };
-    },
-    [],
-  );
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
@@ -107,12 +108,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin: roles.includes("admin"),
       isTherapist: roles.includes("therapist"),
       isPatient: roles.includes("patient"),
+      empNumber: emailToEmp(user?.email ?? null),
       signIn,
-      signUp,
       signOut,
       refreshRoles,
     }),
-    [user, session, roles, loading, signIn, signUp, signOut, refreshRoles],
+    [user, session, roles, loading, signIn, signOut, refreshRoles],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
