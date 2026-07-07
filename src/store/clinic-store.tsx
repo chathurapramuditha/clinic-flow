@@ -350,6 +350,11 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
             return null;
           }
           patientId = newP.id;
+          const newPatient = rowToPatient(newP as PatientRow);
+          patientsMapRef.current.set(newPatient.id, newPatient);
+          setPatients((prev) =>
+            prev.some((p) => p.id === newPatient.id) ? prev : [...prev, newPatient],
+          );
         }
       }
 

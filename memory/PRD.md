@@ -26,10 +26,14 @@ Change the login method to use the employee number instead of the previous metho
 - [x] Seeded admin 26754 + 8 staff, all logins verified via curl (9/9 LOGIN OK) and browser E2E (admin login → dashboard → staff page)
 - [x] Preview environment fixed (frontend shim, vite allowedHosts, deps installed)
 - [x] Edit staff feature: name, employee number, roles (admin/therapist, can be both), staff type (Permanent/Part-time). New RPC `admin_update_staff` (user ran /app/public/update_staff.sql). Safeguards: last-admin protection, duplicate emp rejection, blocks removing therapist role if appointments exist. Tested via API (5/5) + browser E2E.
+- [x] Admin Reset password (in Edit dialog): RPC `admin_set_password` (user ran /app/public/reset_password.sql) — bcrypt via extensions.crypt, revokes target's sessions + refresh tokens. Verified 6/6 via API + UI (testing agent iteration_2).
+- [x] BUG FIX: staff couldn't create appointments — "new row violates row-level security policy for table patients". Root cause: PostgREST INSERT..RETURNING (.select()) requires new row to pass SELECT policies; therapists could only read patients they treat. Fix: staff-wide RLS (is_staff fn; all staff view/insert/update patients, full CRUD on appointments in any column) via /app/public/staff_access.sql (user ran it). Verified via curl + testing agent iteration_2 (8/8 checks).
+- [x] clinic-store.tsx: newly created patient now added to local state immediately (avoids brief "(unknown patient)" label).
 
 ## Backlog
-- P1: Admin password reset for staff (needs a new `admin_set_password` RPC in Supabase — user must run SQL to add it)
 - P2: Force password change on first login (all staff share default `Hemas@123`)
+- P2: Delete option on Patients page (admin) — flagged by testing agent
+- P2: Root-layout SSR hydration mismatch console warning (dev-only Lovable plugin, harmless)
 - P2: Clean up old Lovable migrations referencing the dead project (informational only)
 
 ## Key gotchas for future agents
