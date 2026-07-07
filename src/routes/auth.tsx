@@ -34,12 +34,28 @@ function AuthPage() {
     e.preventDefault();
     setError(null);
     setBusy(true);
-    const { error } = await signIn(emp.trim(), password);
+    const result = await signIn(emp.trim(), password);
     setBusy(false);
-    if (error) {
-      setError(error);
+
+    if (result.error) {
+      let msg = "An unexpected error occurred during sign in.";
+      if (typeof result.error === "string") {
+        msg = result.error;
+      } else if (result.error && typeof result.error === "object") {
+        msg =
+          (result.error as any).message ||
+          (result.error as any).error_description ||
+          JSON.stringify(result.error);
+      }
+
+      if (msg === "{}" || !msg) {
+        msg = "Unable to sign in. Please check your connection and try again.";
+      }
+
+      setError(msg);
       return;
     }
+
     toast.success("Signed in");
     navigate({ to: "/" });
   };

@@ -40,9 +40,7 @@ export function CalendarGrid({
 
   const isWithinHours = (t: Therapist, slotStart: number) => {
     if (!t.workingHours.days.includes(dow)) return false;
-    return (
-      slotStart >= t.workingHours.start && slotStart + SLOT_MINUTES <= t.workingHours.end
-    );
+    return slotStart >= t.workingHours.start && slotStart + SLOT_MINUTES <= t.workingHours.end;
   };
 
   return (
@@ -61,13 +59,7 @@ export function CalendarGrid({
           {visibleTherapists.map((t) => {
             const c = therapistColor(t);
             return (
-              <div
-                key={t.id}
-                className={cn(
-                  "border-b border-r px-3 py-3 last:border-r-0",
-                  c.bg,
-                )}
-              >
+              <div key={t.id} className={cn("border-b border-r px-3 py-3 last:border-r-0", c.bg)}>
                 <div className={cn("text-sm font-semibold", c.text)}>{t.name}</div>
                 <div className="mt-0.5 text-[11px] uppercase tracking-wide text-muted-foreground">
                   {t.status === "permanent" ? "Permanent" : "Part-time"} · {t.specialty}
@@ -95,9 +87,7 @@ export function CalendarGrid({
                         "hover:brightness-95",
                       )}
                     >
-                      <div className={cn("text-xs font-semibold", c.text)}>
-                        {appt.patientName}
-                      </div>
+                      <div className={cn("text-xs font-semibold", c.text)}>{appt.patientName}</div>
                       <div className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">
                         {appt.reason}
                       </div>

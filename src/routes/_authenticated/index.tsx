@@ -45,9 +45,7 @@ function DashboardPage() {
             {prettyDate(today)}
           </p>
           <h1 className="mt-1 truncate text-2xl font-bold tracking-tight sm:text-3xl">
-            {isPatient && !isAdmin && !isTherapist
-              ? "Your upcoming visits"
-              : "Good day, team"}
+            {isPatient && !isAdmin && !isTherapist ? "Your upcoming visits" : "Good day, team"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {isPatient && !isAdmin && !isTherapist
@@ -94,10 +92,7 @@ function DashboardPage() {
         <section className="rounded-2xl border bg-card p-5 shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Upcoming today</h2>
-            <Link
-              to="/calendar"
-              className="text-xs font-medium text-sky-700 hover:underline"
-            >
+            <Link to="/calendar" className="text-xs font-medium text-sky-700 hover:underline">
               Open full calendar →
             </Link>
           </div>

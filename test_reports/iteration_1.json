@@ -1,11 +1,16 @@
 {
   "summary": "Verified PhysioSchedule Calendar shows ALL 8 therapists for both admin (26754) and therapist (19352) users. Filter dropdown lists 'All therapists' + all 8 names; single-therapist filter narrows correctly; switching back to 'All therapists' restores all 8 columns. Dashboard shows 'ACTIVE THERAPISTS 8/8'.",
-  "backend_issues": {"critical": [], "minor": []},
+  "backend_issues": { "critical": [], "minor": [] },
   "frontend_issues": {
     "ui_bugs": [],
     "integration_issues": [],
     "design_issues": [
-      {"screen": "root/app-shell", "issues": ["Non-blocking React SSR hydration mismatch warning on __root__ (data-tsd-source line-number attr differs between server and client). Tree re-renders on client so functionality is unaffected, but the console error is noisy. Likely caused by Tailwind/TSD source-map plugin injecting different line numbers between SSR and client render."]}
+      {
+        "screen": "root/app-shell",
+        "issues": [
+          "Non-blocking React SSR hydration mismatch warning on __root__ (data-tsd-source line-number attr differs between server and client). Tree re-renders on client so functionality is unaffected, but the console error is noisy. Likely caused by Tailwind/TSD source-map plugin injecting different line numbers between SSR and client render."
+        ]
+      }
     ]
   },
   "test_report_links": [],
@@ -17,7 +22,10 @@
     "SSR hydration mismatch on RootShell is a real code smell even if visually harmless; will surface as a red console error for every user on every page load."
   ],
   "updated_files": [],
-  "success_rate": {"backend": "n/a (no local backend by design)", "frontend": "100% (5/5 requested checks pass)"},
+  "success_rate": {
+    "backend": "n/a (no local backend by design)",
+    "frontend": "100% (5/5 requested checks pass)"
+  },
   "test_credentials": "Admin 26754 / Hemas@123, Therapist 19352 / Hemas@123 (both work against remote Supabase).",
   "seed_data_creation": "None. Read-only verification as instructed.",
   "retest_needed": false,

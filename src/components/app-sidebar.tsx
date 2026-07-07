@@ -9,7 +9,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-
 import {
   Sidebar,
   SidebarContent,
@@ -38,7 +37,6 @@ export function AppSidebar() {
   const { user, roles, signOut, empNumber } = useAuth();
   const navigate = useNavigate();
   const isAdmin = roles.includes("admin");
-
 
   const handleSignOut = async () => {
     await signOut();
@@ -95,7 +93,6 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               )}
             </SidebarMenu>
-
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
