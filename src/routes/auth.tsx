@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { toast } from "sonner";
@@ -11,69 +10,37 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — PhysioSchedule" },
-      { name: "description", content: "Sign in or create a patient account for PhysioSchedule." },
+      { title: "Staff sign in — PhysioSchedule" },
+      { name: "description", content: "Sign in with your employee number." },
     ],
   }),
   component: AuthPage,
 });
 
 function AuthPage() {
-  const { user, loading, signIn, signUp } = useAuth();
+  const { user, loading, signIn } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
 
-  const [signinEmail, setSigninEmail] = useState("");
-  const [signinPassword, setSigninPassword] = useState("");
-  const [signinBusy, setSigninBusy] = useState(false);
-  const [signinError, setSigninError] = useState<string | null>(null);
-
-  const [signupName, setSignupName] = useState("");
-  
-  const [signupEmail, setSignupEmail] = useState("");
-  const [signupPassword, setSignupPassword] = useState("");
-  const [signupBusy, setSignupBusy] = useState(false);
-  const [signupError, setSignupError] = useState<string | null>(null);
+  const [emp, setEmp] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && user) {
-      navigate({ to: "/" });
-    }
+    if (!loading && user) navigate({ to: "/" });
   }, [loading, user, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSigninError(null);
-    setSigninBusy(true);
-    const { error } = await signIn(signinEmail.trim(), signinPassword);
-    setSigninBusy(false);
+    setError(null);
+    setBusy(true);
+    const { error } = await signIn(emp.trim(), password);
+    setBusy(false);
     if (error) {
-      setSigninError(error);
+      setError(error);
       return;
     }
     toast.success("Signed in");
-    navigate({ to: "/" });
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSignupError(null);
-    if (signupPassword.length < 8) {
-      setSignupError("Password must be at least 8 characters.");
-      return;
-    }
-    setSignupBusy(true);
-    const { error } = await signUp(signupEmail.trim(), signupPassword, {
-      name: signupName.trim(),
-    });
-    setSignupBusy(false);
-    if (error) {
-      setSignupError(error);
-      return;
-    }
-    toast.success("Account created", {
-      description: "You're signed in as a patient.",
-    });
     navigate({ to: "/" });
   };
 
@@ -91,16 +58,14 @@ function AuthPage() {
         </Link>
         <div className="max-w-md">
           <h2 className="text-3xl font-bold tracking-tight text-foreground">
-            Modern scheduling for your physio team.
+            Staff-only scheduling workspace.
           </h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            45-minute appointment slots, live realtime updates, and clean patient records — all
-            in one place.
+            Sign in with your employee number. New accounts are created by an administrator.
           </p>
         </div>
         <p className="text-xs text-muted-foreground">
-          Patients see only their own appointments. Therapists see their column. Admins see
-          everything.
+          Therapists see their own column. Admins manage staff and see everything.
         </p>
       </div>
 
@@ -114,98 +79,49 @@ function AuthPage() {
               <div className="text-base font-bold">PhysioSchedule</div>
             </div>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Welcome</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Staff sign in</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Sign in to your account or create a patient profile.
+            Use your employee number and password.
           </p>
 
-          <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")} className="mt-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Create account</TabsTrigger>
-            </TabsList>
+          <form onSubmit={handleSignIn} className="mt-6 grid gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="emp">Employee number</Label>
+              <Input
+                id="emp"
+                autoComplete="username"
+                inputMode="text"
+                autoCapitalize="characters"
+                placeholder="e.g. 26754"
+                value={emp}
+                onChange={(e) => setEmp(e.target.value)}
+                required
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {error && <p className="text-xs text-destructive">{error}</p>}
+            <Button
+              type="submit"
+              disabled={busy}
+              className="mt-1 bg-gradient-to-r from-teal-500 to-sky-500 text-white hover:opacity-95"
+            >
+              {busy ? "Signing in…" : "Sign in"}
+            </Button>
+          </form>
 
-            <TabsContent value="signin" className="mt-4">
-              <form onSubmit={handleSignIn} className="grid gap-3">
-                <div className="grid gap-1.5">
-                  <Label htmlFor="si-email">Email</Label>
-                  <Input
-                    id="si-email"
-                    type="email"
-                    autoComplete="email"
-                    value={signinEmail}
-                    onChange={(e) => setSigninEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="si-password">Password</Label>
-                  <Input
-                    id="si-password"
-                    type="password"
-                    autoComplete="current-password"
-                    value={signinPassword}
-                    onChange={(e) => setSigninPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                {signinError && <p className="text-xs text-destructive">{signinError}</p>}
-                <Button
-                  type="submit"
-                  disabled={signinBusy}
-                  className="mt-1 bg-gradient-to-r from-teal-500 to-sky-500 text-white hover:opacity-95"
-                >
-                  {signinBusy ? "Signing in…" : "Sign in"}
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="signup" className="mt-4">
-              <form onSubmit={handleSignUp} className="grid gap-3">
-                <div className="grid gap-1.5">
-                  <Label htmlFor="su-name">Full name</Label>
-                  <Input
-                    id="su-name"
-                    value={signupName}
-                    onChange={(e) => setSignupName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="su-email">Email</Label>
-                  <Input
-                    id="su-email"
-                    type="email"
-                    autoComplete="email"
-                    value={signupEmail}
-                    onChange={(e) => setSignupEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor="su-password">Password</Label>
-                  <Input
-                    id="su-password"
-                    type="password"
-                    autoComplete="new-password"
-                    value={signupPassword}
-                    onChange={(e) => setSignupPassword(e.target.value)}
-                    minLength={8}
-                    required
-                  />
-                  <p className="text-[11px] text-muted-foreground">At least 8 characters.</p>
-                </div>
-                {signupError && <p className="text-xs text-destructive">{signupError}</p>}
-                <Button
-                  type="submit"
-                  disabled={signupBusy}
-                  className="mt-1 bg-gradient-to-r from-teal-500 to-sky-500 text-white hover:opacity-95"
-                >
-                  {signupBusy ? "Creating…" : "Create account"}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            Need an account? Ask an administrator to add you.
+          </p>
         </div>
       </div>
     </div>

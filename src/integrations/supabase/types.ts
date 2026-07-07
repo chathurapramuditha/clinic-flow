@@ -99,6 +99,7 @@ export type Database = {
         Row: {
           color: string
           created_at: string
+          emp_number: string | null
           id: string
           initials: string
           name: string
@@ -114,6 +115,7 @@ export type Database = {
         Insert: {
           color?: string
           created_at?: string
+          emp_number?: string | null
           id?: string
           initials?: string
           name: string
@@ -129,6 +131,7 @@ export type Database = {
         Update: {
           color?: string
           created_at?: string
+          emp_number?: string | null
           id?: string
           initials?: string
           name?: string
@@ -169,6 +172,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_create_staff: {
+        Args: { _emp: string; _name: string; _password: string }
+        Returns: string
+      }
+      admin_delete_staff: {
+        Args: { _target_user_id: string }
+        Returns: undefined
+      }
+      admin_list_staff: {
+        Args: never
+        Returns: {
+          created_at: string
+          emp_number: string
+          name: string
+          roles: Database["public"]["Enums"]["app_role"][]
+          user_id: string
+        }[]
+      }
       admin_list_users: {
         Args: never
         Returns: {
