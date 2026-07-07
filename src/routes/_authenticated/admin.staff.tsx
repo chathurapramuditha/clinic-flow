@@ -268,9 +268,7 @@ function AdminStaffPage() {
             </div>
           ))}
         {!loading && rows.length === 0 && (
-          <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-            No staff yet.
-          </div>
+          <div className="px-4 py-10 text-center text-sm text-muted-foreground">No staff yet.</div>
         )}
         {!loading &&
           rows.map((r) => {
@@ -284,9 +282,7 @@ function AdminStaffPage() {
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium">
                     {r.name}
-                    {isSelf && (
-                      <span className="ml-1 text-xs text-muted-foreground">(you)</span>
-                    )}
+                    {isSelf && <span className="ml-1 text-xs text-muted-foreground">(you)</span>}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Added {new Date(r.created_at).toLocaleDateString()}
@@ -341,8 +337,8 @@ function AdminStaffPage() {
           <DialogHeader>
             <DialogTitle>Edit staff member</DialogTitle>
             <DialogDescription>
-              Update the name, employee number, roles or staff type. They will
-              sign in with the new employee number afterwards.
+              Update the name, employee number, roles or staff type. They will sign in with the new
+              employee number afterwards.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleEdit} className="grid gap-3">
@@ -442,16 +438,13 @@ function AdminStaffPage() {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog
-        open={!!confirmDelete}
-        onOpenChange={(o) => !o && setConfirmDelete(null)}
-      >
+      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove staff member?</AlertDialogTitle>
             <AlertDialogDescription>
-              {confirmDelete?.name} ({confirmDelete?.emp_number}) will lose access
-              immediately. This cannot be undone.
+              {confirmDelete?.name} ({confirmDelete?.emp_number}) will lose access immediately. This
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

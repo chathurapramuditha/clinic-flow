@@ -1,11 +1,16 @@
 {
   "summary": "End-to-end UI verification of RLS bug fix + reset-password UI on PhysioSchedule. All 5 requested checks PASS. Therapist (emp 19352) successfully created 'QA Test Patient' + appointment against a DIFFERENT therapist (Ms Binudi) with no 'Could not create patient' RLS error. Admin (26754) sees the same appointment. Appointment cancelled via UI (drawer Cancel -> confirm dialog 'Cancel appointment'). Reset password button correctly disabled under 6 chars, enabled at 9 chars, success toast 'Password reset for Ms Manthi. They are signed out everywhere.' Regression: therapist still sees all 8 therapist columns on /calendar.",
-  "backend_issues": {"critical": [], "minor": []},
+  "backend_issues": { "critical": [], "minor": [] },
   "frontend_issues": {
     "ui_bugs": [],
     "integration_issues": [],
     "design_issues": [
-      {"screen": "root/app-shell", "issues": ["(Same as iteration_1) Non-blocking React SSR hydration mismatch warning on root layout — noisy console error, functionality unaffected."]}
+      {
+        "screen": "root/app-shell",
+        "issues": [
+          "(Same as iteration_1) Non-blocking React SSR hydration mismatch warning on root layout — noisy console error, functionality unaffected."
+        ]
+      }
     ]
   },
   "test_report_links": [],
@@ -19,7 +24,10 @@
     "Reset password field is not cleared on dialog close in some cases (minor)."
   ],
   "updated_files": [],
-  "success_rate": {"backend": "n/a (remote Supabase; no local backend)", "frontend": "100% (5/5 requested UI checks pass)"},
+  "success_rate": {
+    "backend": "n/a (remote Supabase; no local backend)",
+    "frontend": "100% (5/5 requested UI checks pass)"
+  },
   "test_credentials": "Admin 26754 / Hemas@123; Therapist 19352 / Hemas@123; Reset target L2020 (Ms Manthi) — password kept as Hemas@123 (no change).",
   "seed_data_creation": "Created and then CANCELLED one appointment (QA Test Patient with Ms Binudi @ 8:30-9:15 on 2026-07-07). Patient row 'QA Test Patient' remains in patients table — see action_items for manual cleanup.",
   "retest_needed": false,

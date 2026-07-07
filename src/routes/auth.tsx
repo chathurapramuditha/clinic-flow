@@ -37,7 +37,12 @@ function AuthPage() {
     const { error } = await signIn(emp.trim(), password);
     setBusy(false);
     if (error) {
-      setError(error);
+      // Ensure error is a readable string. JSON.stringify(Error) returns "{}"
+      let msg = typeof error === "string" ? error : JSON.stringify(error);
+      if (typeof error !== "string" && error && typeof error === "object" && "message" in error) {
+        msg = (error as { message: string }).message;
+      }
+      setError(msg);
       return;
     }
     toast.success("Signed in");

@@ -43,18 +43,13 @@ function TherapistsPage() {
           therapists.map((t) => {
             const c = therapistColor(t);
             return (
-              <article
-                key={t.id}
-                className="overflow-hidden rounded-2xl border bg-card shadow-sm"
-              >
+              <article key={t.id} className="overflow-hidden rounded-2xl border bg-card shadow-sm">
                 <div className={cn("border-b p-5", c.bg)}>
                   <div className="flex items-start gap-3">
                     <TherapistAvatar therapist={t} className="h-12 w-12 text-sm" />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className={cn("truncate text-base font-semibold", c.text)}>
-                          {t.name}
-                        </h2>
+                        <h2 className={cn("truncate text-base font-semibold", c.text)}>{t.name}</h2>
                         <StatusPill status={t.status} />
                       </div>
                       <p className="text-xs text-muted-foreground">{t.specialty}</p>

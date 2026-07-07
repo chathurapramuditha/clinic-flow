@@ -1,13 +1,16 @@
 # PRD — PhysioSchedule (Appointments Management System)
 
 ## Original Problem Statement
+
 Change the login method to use the employee number instead of the previous method. Logins must be created by an admin.
+
 - Admin account: emp `26754` / password `Hemas@123`
 - Admin can add/edit/remove staff members (user chose: full CRUD + roles/permissions)
 - Seed staff (all default password `Hemas@123`): Ms Madhuwanthi 19352, Ms Binudi 27527, Ms Bawani 28262, Ms Prashanji L2562, Ms Sandini L2386, Ms Lakshi 23824, Ms Methni L2497, Ms Manthi L2020
 - App purpose: appointments management (physiotherapy clinic)
 
 ## Architecture (IMPORTANT — non-standard stack)
+
 - Lovable-exported project: **Vite + TanStack Start + React 19 + Supabase** (NO FastAPI/Mongo backend)
 - App source lives at `/app/src` (routes, store, context); Supabase migrations in `/app/supabase/migrations`
 - Supabase project: `gqfiumavcxiuonwgjxyj` (user's own project; config in `/app/.env`)
@@ -19,6 +22,7 @@ Change the login method to use the employee number instead of the previous metho
 - Full DB setup script: `/app/public/setup.sql` (idempotent; user runs it in Supabase SQL Editor — agent has NO direct DB access, only anon key)
 
 ## Implemented (2026-06 / Jul 7 session)
+
 - [x] Employee-number login UI + auth context (pre-existing from Lovable)
 - [x] Admin staff page: list/add/remove staff (pre-existing)
 - [x] FIXED: app previously pointed to inaccessible Lovable-managed Supabase project (`guyiacoembyrjsezwcuu`) whose seeded users crashed GoTrue (NULL token columns in auth.users → 500 "Database error querying schema")
@@ -31,12 +35,14 @@ Change the login method to use the employee number instead of the previous metho
 - [x] clinic-store.tsx: newly created patient now added to local state immediately (avoids brief "(unknown patient)" label).
 
 ## Backlog
+
 - P2: Force password change on first login (all staff share default `Hemas@123`)
 - P2: Delete option on Patients page (admin) — flagged by testing agent
 - P2: Root-layout SSR hydration mismatch console warning (dev-only Lovable plugin, harmless)
 - P2: Clean up old Lovable migrations referencing the dead project (informational only)
 
 ## Key gotchas for future agents
-- ANY new DB function/schema change must be given to the user as SQL to run in the Supabase SQL Editor (https://supabase.com/dashboard/project/gqfiumavcxiuonwgjxyj/sql/new) — no direct DB access from here. Host long scripts at /app/public/*.sql and share the preview URL.
+
+- ANY new DB function/schema change must be given to the user as SQL to run in the Supabase SQL Editor (https://supabase.com/dashboard/project/gqfiumavcxiuonwgjxyj/sql/new) — no direct DB access from here. Host long scripts at /app/public/\*.sql and share the preview URL.
 - When creating users in auth.users via SQL, ALWAYS set token columns to '' (confirmation_token, recovery_token, email_change, email_change_token_new, email_change_token_current, phone_change, phone_change_token, reauthentication_token) or GoTrue login breaks with 500.
 - Restart frontend after changing /app/.env (Vite bakes env at startup).

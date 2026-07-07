@@ -44,13 +44,7 @@ export function BookingModal({
   state: BookingModalState;
   onOpenChange: (open: boolean) => void;
 }) {
-  const {
-    therapists,
-    patients,
-    addAppointment,
-    updateAppointment,
-    validateBooking,
-  } = useClinic();
+  const { therapists, patients, addAppointment, updateAppointment, validateBooking } = useClinic();
   const { isPatient, isAdmin, isTherapist, user } = useAuth();
 
   const myPatient = useMemo(
@@ -98,8 +92,7 @@ export function BookingModal({
     if (!t) return SLOTS;
     if (!t.workingHours.days.includes(dow)) return [];
     return SLOTS.filter(
-      (s) =>
-        s.start >= t.workingHours.start && s.start + SLOT_MINUTES <= t.workingHours.end,
+      (s) => s.start >= t.workingHours.start && s.start + SLOT_MINUTES <= t.workingHours.end,
     );
   }, [therapists, therapistId, dow]);
 
@@ -295,9 +288,7 @@ export function BookingModal({
                 ))}
               </SelectContent>
             </Select>
-            {errors.therapistId && (
-              <p className="text-xs text-destructive">{errors.therapistId}</p>
-            )}
+            {errors.therapistId && <p className="text-xs text-destructive">{errors.therapistId}</p>}
             {selectedTherapist && (
               <p className="text-xs text-muted-foreground">
                 Works {formatWorkingHours(selectedTherapist.workingHours)}

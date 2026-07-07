@@ -47,8 +47,7 @@ function CalendarPage() {
       initial: {
         date,
         slotKey: opts.slotKey,
-        therapistId:
-          opts.therapistId ?? (therapistFilter !== "all" ? therapistFilter : undefined),
+        therapistId: opts.therapistId ?? (therapistFilter !== "all" ? therapistFilter : undefined),
       },
     });
 
@@ -108,12 +107,7 @@ function CalendarPage() {
           <Button variant="ghost" size="icon" onClick={() => setDate(addDays(date, 1))}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-1"
-            onClick={() => setDate(todayISO())}
-          >
+          <Button variant="outline" size="sm" className="ml-1" onClick={() => setDate(todayISO())}>
             Today
           </Button>
         </div>
@@ -155,10 +149,7 @@ function CalendarPage() {
         )}
       </div>
 
-      <BookingModal
-        state={booking}
-        onOpenChange={(o) => setBooking((s) => ({ ...s, open: o }))}
-      />
+      <BookingModal state={booking} onOpenChange={(o) => setBooking((s) => ({ ...s, open: o }))} />
       <AppointmentDrawer
         appointmentId={openId}
         onClose={() => setOpenId(null)}

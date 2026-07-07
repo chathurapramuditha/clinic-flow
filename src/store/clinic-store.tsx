@@ -228,40 +228,30 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
           }
         },
       )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "patients" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            const row = rowToPatient(payload.new as PatientRow);
-            setPatients((prev) => (prev.some((p) => p.id === row.id) ? prev : [...prev, row]));
-          } else if (payload.eventType === "UPDATE") {
-            const row = rowToPatient(payload.new as PatientRow);
-            setPatients((prev) => prev.map((p) => (p.id === row.id ? row : p)));
-          } else if (payload.eventType === "DELETE") {
-            const id = (payload.old as { id?: string })?.id;
-            if (id) setPatients((prev) => prev.filter((p) => p.id !== id));
-          }
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "therapists" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            const row = rowToTherapist(payload.new as TherapistRow);
-            setTherapists((prev) =>
-              prev.some((t) => t.id === row.id) ? prev : [...prev, row],
-            );
-          } else if (payload.eventType === "UPDATE") {
-            const row = rowToTherapist(payload.new as TherapistRow);
-            setTherapists((prev) => prev.map((t) => (t.id === row.id ? row : t)));
-          } else if (payload.eventType === "DELETE") {
-            const id = (payload.old as { id?: string })?.id;
-            if (id) setTherapists((prev) => prev.filter((t) => t.id !== id));
-          }
-        },
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "patients" }, (payload) => {
+        if (payload.eventType === "INSERT") {
+          const row = rowToPatient(payload.new as PatientRow);
+          setPatients((prev) => (prev.some((p) => p.id === row.id) ? prev : [...prev, row]));
+        } else if (payload.eventType === "UPDATE") {
+          const row = rowToPatient(payload.new as PatientRow);
+          setPatients((prev) => prev.map((p) => (p.id === row.id ? row : p)));
+        } else if (payload.eventType === "DELETE") {
+          const id = (payload.old as { id?: string })?.id;
+          if (id) setPatients((prev) => prev.filter((p) => p.id !== id));
+        }
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "therapists" }, (payload) => {
+        if (payload.eventType === "INSERT") {
+          const row = rowToTherapist(payload.new as TherapistRow);
+          setTherapists((prev) => (prev.some((t) => t.id === row.id) ? prev : [...prev, row]));
+        } else if (payload.eventType === "UPDATE") {
+          const row = rowToTherapist(payload.new as TherapistRow);
+          setTherapists((prev) => prev.map((t) => (t.id === row.id ? row : t)));
+        } else if (payload.eventType === "DELETE") {
+          const id = (payload.old as { id?: string })?.id;
+          if (id) setTherapists((prev) => prev.filter((t) => t.id !== id));
+        }
+      })
       .subscribe((status) => {
         if (disposed) return;
         if (status === "SUBSCRIBED") setConnectionStatus("connected");
@@ -313,10 +303,7 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
       }
       const conflict = appointments.find(
         (a) =>
-          a.id !== id &&
-          a.therapistId === therapistId &&
-          a.date === date &&
-          a.slotKey === slotKey,
+          a.id !== id && a.therapistId === therapistId && a.date === date && a.slotKey === slotKey,
       );
       if (conflict) return { ok: false, error: "Therapist is already booked for this slot." };
       return { ok: true };

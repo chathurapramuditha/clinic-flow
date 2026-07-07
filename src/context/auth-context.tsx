@@ -78,17 +78,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadRoles]);
 
   const signIn = useCallback(async (empNumber: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: empToEmail(empNumber),
-      password,
-    });
-    if (error) {
-      const msg = /invalid/i.test(error.message)
-        ? "Invalid employee number or password."
-        : error.message;
-      return { error: msg };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: empToEmail(empNumber),
+        password,
+      });
+      if (error) {
+        const msg = /invalid/i.test(error.message)
+          ? "Invalid employee number or password."
+          : error.message;
+        return { error: msg };
+      }
+      return {};
+    } catch (err) {
+      return {
+        error: err instanceof Error ? err.message : "An unexpected error occurred during sign in.",
+      };
     }
-    return {};
   }, []);
 
   const signOut = useCallback(async () => {

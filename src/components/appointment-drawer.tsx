@@ -70,11 +70,7 @@ export function AppointmentDrawer({
               </dl>
 
               <div className="flex flex-col gap-2 sm:flex-row">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => onEdit(appt.id)}
-                >
+                <Button variant="outline" className="flex-1" onClick={() => onEdit(appt.id)}>
                   <Pencil className="mr-2 h-4 w-4" /> Reschedule
                 </Button>
                 <Button
@@ -91,7 +87,8 @@ export function AppointmentDrawer({
                 onClick={onClose}
                 className="block rounded-lg border border-dashed p-3 text-center text-xs text-muted-foreground transition-colors hover:bg-muted"
               >
-                Open patient record for <span className="font-semibold text-foreground">{appt.patientName}</span> →
+                Open patient record for{" "}
+                <span className="font-semibold text-foreground">{appt.patientName}</span> →
               </Link>
             </div>
           </>
