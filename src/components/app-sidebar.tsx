@@ -7,6 +7,8 @@ import {
   Activity,
   LogOut,
   ShieldCheck,
+} from "lucide-react";
+
 
 import {
   Sidebar,
