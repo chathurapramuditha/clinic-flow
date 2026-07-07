@@ -6,7 +6,10 @@ import {
   Users,
   Activity,
   LogOut,
+  ShieldCheck,
 } from "lucide-react";
+
+
 import {
   Sidebar,
   SidebarContent,
@@ -34,6 +37,8 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const { user, roles, signOut } = useAuth();
   const navigate = useNavigate();
+  const isAdmin = roles.includes("admin");
+
 
   const handleSignOut = async () => {
     await signOut();
@@ -79,7 +84,18 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              {isAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={pathname === "/admin/users"}>
+                    <Link to="/admin/users" className="flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span>Users</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
+
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
