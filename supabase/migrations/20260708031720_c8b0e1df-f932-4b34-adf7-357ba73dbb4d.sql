@@ -1,0 +1,11 @@
+REVOKE EXECUTE ON FUNCTION public.admin_create_staff(text, text, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.admin_delete_staff(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.admin_list_staff() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.admin_set_password(uuid, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.admin_update_staff(uuid, text, text, boolean, boolean, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.is_patient_record_owner(uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.is_therapist_record_owner(uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.is_patient_treated_by_staff(uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.admin_set_role(uuid, app_role, boolean) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.admin_list_users() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid, app_role) FROM anon;
