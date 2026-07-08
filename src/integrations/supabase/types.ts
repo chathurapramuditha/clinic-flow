@@ -199,10 +199,25 @@ export type Database = {
           roles: Database["public"]["Enums"]["app_role"][]
         }[]
       }
+      admin_set_password: {
+        Args: { _password: string; _target_user_id: string }
+        Returns: undefined
+      }
       admin_set_role: {
         Args: {
           _grant: boolean
           _role: Database["public"]["Enums"]["app_role"]
+          _target_user_id: string
+        }
+        Returns: undefined
+      }
+      admin_update_staff: {
+        Args: {
+          _emp: string
+          _is_admin: boolean
+          _is_therapist: boolean
+          _name: string
+          _status: string
           _target_user_id: string
         }
         Returns: undefined
