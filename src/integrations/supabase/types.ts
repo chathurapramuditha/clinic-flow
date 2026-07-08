@@ -229,6 +229,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_patient_record_owner: {
+        Args: { _patient_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_patient_treated_by_staff: {
+        Args: { _patient_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_therapist_record_owner: {
+        Args: { _therapist_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "therapist" | "patient"

@@ -30,8 +30,9 @@ function AuthPage() {
     if (!loading && user) navigate({ to: "/" });
   }, [loading, user, navigate]);
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignIn = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (busy) return;
     setError(null);
     setBusy(true);
     const { error } = await signIn(emp.trim(), password);
@@ -111,7 +112,8 @@ function AuthPage() {
             </div>
             {error && <p className="text-xs text-destructive">{error}</p>}
             <Button
-              type="submit"
+              type="button"
+              onClick={() => void handleSignIn()}
               disabled={busy}
               className="mt-1 bg-gradient-to-r from-teal-500 to-sky-500 text-white hover:opacity-95"
             >
