@@ -50,7 +50,6 @@ function PatientsPage() {
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search by name or phone"
           className="pl-9"
         />
       </div>
@@ -67,7 +66,7 @@ function PatientsPage() {
           <ul className="divide-y">
             {filtered.length === 0 && (
               <li className="p-10 text-center text-sm text-muted-foreground">
-                No patients match your search.
+                No patients on file.
               </li>
             )}
             {filtered.map((p) => {
