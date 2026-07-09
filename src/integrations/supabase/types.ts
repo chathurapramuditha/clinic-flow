@@ -237,6 +237,7 @@ export type Database = {
         Args: { _patient_id: string; _user_id: string }
         Returns: boolean
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
       is_therapist_record_owner: {
         Args: { _therapist_id: string; _user_id: string }
         Returns: boolean
