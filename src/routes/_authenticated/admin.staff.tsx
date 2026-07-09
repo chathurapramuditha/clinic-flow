@@ -412,7 +412,6 @@ function AdminStaffPage() {
                   id="edit-password"
                   data-testid="edit-staff-password-input"
                   type="text"
-                  placeholder="New password (min 6 characters)"
                   value={editPassword}
                   onChange={(e) => setEditPassword(e.target.value)}
                 />

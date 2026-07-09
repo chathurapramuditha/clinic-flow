@@ -93,7 +93,6 @@ function AuthPage() {
                 autoComplete="username"
                 inputMode="text"
                 autoCapitalize="characters"
-                placeholder="e.g. 26754"
                 value={emp}
                 onChange={(e) => setEmp(e.target.value)}
                 required

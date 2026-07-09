@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
+  ClientOnly,
   createRootRouteWithContext,
   useRouter,
   useRouterState,
@@ -115,7 +116,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ClinicProvider>
-          <AppShell />
+          <ClientOnly fallback={<div className="min-h-screen bg-background" />}>
+            <AppShell />
+          </ClientOnly>
           <Toaster position="bottom-right" richColors />
         </ClinicProvider>
       </AuthProvider>

@@ -207,7 +207,7 @@ export function BookingModal({
                 disabled={state.mode === "edit"}
               >
                 <SelectTrigger aria-invalid={!!errors.patient}>
-                  <SelectValue placeholder="Select or add a patient" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {patients.map((p) => (
@@ -242,7 +242,6 @@ export function BookingModal({
                   id="patientName"
                   value={patientName}
                   onChange={(e) => setPatientName(e.target.value)}
-                  placeholder="Jane Doe"
                   aria-invalid={!!errors.patientName}
                 />
                 {errors.patientName && (
@@ -255,7 +254,6 @@ export function BookingModal({
                   id="patientPhone"
                   value={patientPhone}
                   onChange={(e) => setPatientPhone(e.target.value)}
-                  placeholder="+1 555-0100"
                   aria-invalid={!!errors.patientPhone}
                 />
                 {errors.patientPhone && (
@@ -272,7 +270,6 @@ export function BookingModal({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={2}
-              placeholder="Post-op knee rehabilitation, session 3"
               aria-invalid={!!errors.reason}
             />
             {errors.reason && <p className="text-xs text-destructive">{errors.reason}</p>}
@@ -282,7 +279,7 @@ export function BookingModal({
             <Label>Therapist</Label>
             <Select value={therapistId} onValueChange={setTherapistId}>
               <SelectTrigger aria-invalid={!!errors.therapistId}>
-                <SelectValue placeholder="Assign a physiotherapist" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {therapists.map((t) => (
@@ -325,15 +322,7 @@ export function BookingModal({
                 disabled={!therapistId || availableSlots.length === 0}
               >
                 <SelectTrigger aria-invalid={!!errors.slotKey}>
-                  <SelectValue
-                    placeholder={
-                      !therapistId
-                        ? "Select therapist first"
-                        : availableSlots.length === 0
-                          ? "Not working this day"
-                          : "Pick a 45-min slot"
-                    }
-                  />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-64">
                   {availableSlots.map((s) => (
